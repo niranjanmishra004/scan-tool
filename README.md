@@ -35,6 +35,9 @@ cd scan-tool
 sudo cp scan /usr/local/bin/scan
 sudo chmod +x /usr/local/bin/scan
 
-#Run the tool with sudo scan
-but remember to in root
+#Run the tool with 
+
+sudo scan
+
+#but remember to in root
 

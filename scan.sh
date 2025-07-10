@@ -13,7 +13,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-echo -e "${CYAN}[*] Starting system scan for potential malware...${NC}"
+echo -e "${CYAN}[*] Starting system scan and automatic removal for potential malware...${NC}"
 
 # Suspicious patterns to scan for
 suspicious_patterns=(
@@ -38,8 +38,9 @@ scan_dirs=(
 )
 
 found_any=false
+removed_any=false
 
-# Scan loop
+# Scan and delete loop
 for dir in "${scan_dirs[@]}"; do
   for pattern in "${suspicious_patterns[@]}"; do
     matches=$(find "$dir" -type f -iname "$pattern" 2>/dev/null)
@@ -47,11 +48,23 @@ for dir in "${scan_dirs[@]}"; do
       echo -e "${YELLOW}[!] Suspicious files found in ${dir} matching '${pattern}':${NC}"
       echo -e "${RED}$matches${NC}"
       found_any=true
+      # Attempt to delete each file
+      while IFS= read -r file; do
+        rm -f "$file" && echo -e "${GREEN}[+] Removed: $file${NC}" && removed_any=true
+      done <<< "$matches"
     fi
   done
 done
 
-# Final message
+# Run autoremove if any files were removed
+if $removed_any; then
+  echo -e "${CYAN}[*] Running apt autoremove to clean up unused packages...${NC}"
+  apt autoremove -y
+fi
+
+# Final status message
 if ! $found_any; then
   echo -e "${GREEN}[+] No suspicious files found. System appears clean.${NC}"
+elif ! $removed_any; then
+  echo -e "${YELLOW}[!] Suspicious files found but none were removed. Check permissions or file locks.${NC}"
 fi

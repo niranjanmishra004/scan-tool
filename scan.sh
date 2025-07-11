@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 
 # Root check
 if [ "$EUID" -ne 0 ]; then
-  echo -e "${RED}[!] This script must be run as root. Use sudo.${NC}"
+  echo -e "${RED}[!] Hey Master,this script must be run as root.Please use sudo.${NC}"
   exit 1
 fi
 
@@ -58,7 +58,7 @@ done
 
 # Run autoremove if any files were removed
 if $removed_any; then
-  echo -e "${CYAN}[*] Running apt autoremove to clean up unused packages...${NC}"
+  echo -e "${CYAN}[*] Running autoremove to clean up unused packages...${NC}"
   apt autoremove -y
 fi
 
